@@ -27,7 +27,14 @@ def augment_image_complete(img):
     img_dict["contrast_2"] = cv2.convertScaleAbs(img, alpha=random.randint(2,3), beta=random.randint(50,90))
 
     img_dict["blurImg"] =cv2.blur(img, (7, 7))
-    #img_dict["img_invert"] =cv2.bitwise_not(img)
+    img_dict["img_invert"] =cv2.bitwise_not(img)
+
+    img_dict["translatet_down"] = imutils.translate(img, random.randint(-100,0),random.randint(-100,0))
+    img_dict["translatet_up"] = imutils.translate(img, random.randint(0,100),random.randint(0,100))
+
+    img_dict["translatet_random"] = imutils.translate(img, random.randint(-150, 150), random.randint(-150, 150))
+
+
     return img_dict
 
 def load_augment_save(path,save_path,classe,index,dim =(512,512)):
@@ -58,7 +65,24 @@ def cats_aug():
     for i in range(len(file_lst)):
         load_augment_save(file_lst[i], "data/catdog_data/catdog_data/train_augmentation/cat", "cat", i)
 
+
+def max_size():
+    lst = get_file_list("data/catdog_data/catdog_data/train/cats")
+    size = 0
+    max_height = 0
+    max_weidht = 0
+    for i in tqdm(range(len(lst))):
+        img = cv2.imread(lst[i])
+        if img.shape[0] > max_height:
+            max_height = img.shape[0]
+        if img.shape[1] > max_weidht:
+            max_weidht = img.shape[1]
+    print(max_weidht)
+    print(max_height)
+
+
 if __name__ == "__main__":
+    max_size()
     #image = cv2.imread("data/catdog_data/catdog_data/train/cats/cat.1.jpg")
     #load_augment_save("data/catdog_data/catdog_data/train/cats/cat.1.jpg","data/catdog_data/catdog_data/train_augmentation/cat","cat")
 
