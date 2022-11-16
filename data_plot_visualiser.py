@@ -1,3 +1,5 @@
+# Created by David at 01.11.2022
+# Project name sdu_cat_dog
 # Created by David at 24.10.2022
 # Project name sdu_cat_dog
 import os
@@ -6,6 +8,7 @@ from multiprocessing import Pool
 import numpy as np
 import tensorflow as tf
 import cv2
+import matplotlib.pyplot as plt
 
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -36,8 +39,7 @@ class Predictor:
     def predict(self,img):
         data = np.expand_dims(img, axis=0)
         prediction = self.model.predict(data)
-        prediction = np.argmax(prediction, axis=-1)
-        return prediction[0]
+        return prediction
 
 def get_file_list(path):
     filelist = []
@@ -56,28 +58,37 @@ def load_img(path,dim =(512,512)):
 
 
 if __name__ =="__main__":
-    path = "data\\catdog_data\\catdog_data\\validation"
-    img_lst = get_file_list(path)
+    path_cat = "data\\catdog_data\\catdog_data\\test\\cats"
+    path_dog = "data\\catdog_data\\catdog_data\\test\\dogs"
+    img_lst_cat = get_file_list(path_cat)
+    img_lst_dog = get_file_list(path_dog)
     labels = ["cat","dog"]
     predictor = Predictor(model_weigts="models\\save_at_5_0.9075.h5")
 
     with Pool(12) as p:
-        img_lst = p.map(load_img, img_lst)
+        img_lst_cat = p.map(load_img, img_lst_cat)
 
-    for i in img_lst:
+    with Pool(12) as p:
+        img_lst_dog = p.map(load_img, img_lst_dog)
+
+    data_lst_cat = []
+    data_lst_dog = []
+    for i in img_lst_cat:
         predicted = predictor.predict(i)
-        i = cv2.cvtColor(i, cv2.COLOR_RGB2BGR)
-        new_image = cv2.putText(
-            img=i,
-            text=labels[predicted],
-            org=(0, 75),
-            fontFace=cv2.FONT_HERSHEY_DUPLEX,
-            fontScale=3.0,
-            color=(128, 0, 0),
-            thickness=3
-        )
-        cv2.imshow('new_image', i)
-        cv2.waitKey(0)
-    cv2.destroyAllWindows()
+
+
+        data_lst_cat.append(predicted.tolist()[0])
+
+    for i in img_lst_dog:
+        predicted = predictor.predict(i)
+
+        data_lst_dog.append(predicted.tolist()[0])
+
+    x,y = zip(*data_lst_cat)
+    b,c = zip(*data_lst_dog)
+
+    plt.scatter(x,y,"ro")
+    plt.scatter(b,c, "bo")
+    plt.show()
 
     print("done")

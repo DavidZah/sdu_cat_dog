@@ -4,7 +4,7 @@
 import tensorflow as tf
 from keras import Sequential
 from tensorflow import keras
-from tensorflow.keras import layers
+from keras.utils.layer_utils import count_params
 
 
 class_names = ["dog","cat"]
@@ -46,7 +46,10 @@ def make_model(input_shape, num_classes):
 model = make_model(input_shape=image_size + (3,), num_classes=2)
 #keras.utils.plot_model(model, show_shapes=True)
 
+trainable_count = count_params(model.trainable_weights)
+non_trainable_count = count_params(model.non_trainable_weights)
 
+print(f'Trainable params:{trainable_count}')
 
 train_ds = train_ds.map(lambda x, y: (x, tf.one_hot(y, depth=NUM_CLASSES)))
 val_ds = val_ds.map(lambda x, y: (x, tf.one_hot(y, depth=NUM_CLASSES)))
@@ -54,16 +57,16 @@ val_ds = val_ds.map(lambda x, y: (x, tf.one_hot(y, depth=NUM_CLASSES)))
 epochs = 50
 
 callbacks = [
-    keras.callbacks.ModelCheckpoint("save_at_{epoch}.h5"),
+    keras.callbacks.ModelCheckpoint("models/save_at_{epoch}.h5"),
 ]
 model.compile(
     optimizer=keras.optimizers.Adam(),
-    loss="binary_crossentropy",
+    loss="categorical_crossentropy",
     metrics=["accuracy"],
 )
 tf.get_logger().setLevel('INFO')
 
-model.load_weights("save_at_5.h5")
+model.load_weights("models/save_at_5_0.9075.h5")
 model.fit(
     train_ds, epochs=epochs, callbacks=callbacks, validation_data=val_ds,
 )

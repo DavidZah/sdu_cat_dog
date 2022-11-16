@@ -19,13 +19,7 @@ test_ds = tf.keras.preprocessing.image_dataset_from_directory(
     image_size=image_size,
     batch_size=batch_size,
 )
-train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-    "data/catdog_data/catdog_data/train_augmentation",
-    labels="inferred",
-    seed=1337,
-    image_size=image_size,
-    batch_size=batch_size,
-)
+
 validation_ds = tf.keras.preprocessing.image_dataset_from_directory(
     "data/catdog_data/catdog_data/validation",
     labels="inferred",
@@ -56,7 +50,7 @@ model = make_model(input_shape=image_size + (3,), num_classes=2)
 
 
 test_ds = test_ds.map(lambda x, y: (x, tf.one_hot(y, depth=NUM_CLASSES)))
-train_ds = train_ds.map(lambda x, y: (x, tf.one_hot(y, depth=NUM_CLASSES)))
+#train_ds = train_ds.map(lambda x, y: (x, tf.one_hot(y, depth=NUM_CLASSES)))
 validation_ds = validation_ds.map(lambda x, y: (x, tf.one_hot(y, depth=NUM_CLASSES)))
 
 model.compile(
@@ -66,10 +60,8 @@ model.compile(
 )
 tf.get_logger().setLevel('INFO')
 
-model.load_weights("models/save_at_5.h5")
+model.load_weights("models/save_at_3.h5")
 print("Test dataset")
 model.evaluate(test_ds)
-print("Train dataset")
-model.evaluate(train_ds)
 print("validation_ds dataset")
 model.evaluate(validation_ds)
